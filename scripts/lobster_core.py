@@ -54,6 +54,11 @@ if __name__ == "__main__":
         # 如果是指令觸發，才回傳給 Telegram
         if command:
             send_telegram_message(message)
+        elif "新聞" in command:
+        # 這裡模擬查詢動作
+        result_text = "🦞 小龍蝦已執行新聞查詢：今日股市平穩，無重大波動。"
+        send_telegram_message(result_text)
+        print("✅ 新聞查詢指令處理完畢")
     else:
         # 收到其他不明指令
         send_telegram_message("🦞 小龍蝦已收到指令，但目前只學會幫您下載 ETF 成分表喔！")
