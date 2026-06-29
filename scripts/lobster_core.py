@@ -1,28 +1,19 @@
-import os
 import requests
-import sys
+import os
 
-print("--- 龍蝦程式開始執行 ---")
+etf_list = {
+    "00403A": "https://www.ezmoney.com.tw/ETF/Fund/AssetExcelNPOI?fundCode=63YTW",
+    "00981A": "https://www.ezmoney.com.tw/ETF/Fund/AssetExcelNPOI?fundCode=49YTW",
+    "00988A": "https://www.ezmoney.com.tw/ETF/Fund/AssetExcelNPOI?fundCode=61YTW"
+}
 
-# 檢查變數是否讀取到
-TOKEN = os.environ.get('TELEGRAM_TOKEN')
-CHAT_ID = os.environ.get('TELEGRAM_CHAT_ID')
+# 在當前資料夾建立一個下載資料夾
+os.makedirs("downloads", exist_ok=True)
 
-print(f"DEBUG: Token 長度: {len(TOKEN) if TOKEN else '未讀取到!'}")
-print(f"DEBUG: Chat ID: {CHAT_ID if CHAT_ID else '未讀取到!'}")
-
-if not TOKEN or not CHAT_ID:
-    print("❌ 錯誤：找不到 Token 或 Chat ID，請檢查 Secrets 設定！")
-    sys.exit(1)
-
-url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
-payload = {"chat_id": CHAT_ID, "text": "🦞 小龍蝦測試報告：我活過來了！"}
-
-try:
-    response = requests.post(url, data=payload)
-    print(f"Telegram 回應狀態碼: {response.status_code}")
-    print(f"Telegram 回應內容: {response.text}")
-except Exception as e:
-    print(f"發生網路錯誤: {e}")
-
-print("--- 龍蝦程式執行結束 ---")
+for name, url in etf_list.items():
+    response = requests.get(url)
+    if response.status_code == 200:
+        file_path = f"downloads/{name}.xlsx"
+        with open(file_path, "wb") as f:
+            f.write(response.content)
+        print(f"✅ {name} 下載完成並存入 downloads 資料夾")
