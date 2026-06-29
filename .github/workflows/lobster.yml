@@ -1,33 +1,36 @@
 name: Lobster Daily Tasks
 
 on:
-  # 1. 接收來自 GAS 的即時觸發
   repository_dispatch:
     types: [telegram_command]
-    
-  # 2. 保留每天早上 8 點的自動下載任務
   schedule:
-    - cron: '0 0 * * *' 
-    
-  # 3. 保留手動觸發功能，除錯很方便
+    - cron: '0 0 * * *'
   workflow_dispatch:
 
 jobs:
   run-lobster:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
-      - run: pip install requests
-      
-      - name: Run Lobster
+          
+      - name: Install dependencies
+        run: pip install requests
+        
+      - name: Run Lobster Logic
         env:
-          # 這裡要同時支援從 Webhook 傳來的指令，以及下載任務
-          # 如果是觸發排程任務，COMMAND 會是空的，程式碼裡要處理
           COMMAND: ${{ github.event.client_payload.command }}
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: python scripts/lobster_core.py "$COMMAND"
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: etf-data
+          path: downloads/
